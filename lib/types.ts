@@ -15,6 +15,7 @@ export interface SessionConfig {
   type: QuestionType;
   difficulty: Difficulty;
   jdText?: string;
+  timerSeconds?: number;
 }
 
 export interface Question {
@@ -47,4 +48,13 @@ export interface InterviewSession {
   questions: Question[];
   currentIndex: number;
   answers: Record<string, { mode: AnswerMode; content: string; feedback?: Feedback }>;
+}
+
+export interface SessionHistoryEntry {
+  id: string;
+  createdAt: number;
+  config: Pick<SessionConfig, "type" | "difficulty">;
+  questionCount: number;
+  averageScore: number;
+  scores: number[];
 }

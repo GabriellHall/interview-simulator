@@ -4,13 +4,22 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ProfileForm } from "@/components/ProfileForm";
 import { loadProfile, saveProfile, saveSession } from "@/lib/storage";
+import { DEFAULT_PROFILE } from "@/lib/default-profile";
 import type { Profile, QuestionType, Difficulty, InterviewSession } from "@/lib/types";
+
+const TIMER_OPTIONS: { label: string; value: number }[] = [
+  { label: "None", value: 0 },
+  { label: "2 min", value: 120 },
+  { label: "3 min", value: 180 },
+  { label: "5 min", value: 300 },
+];
 
 export default function SetupPage() {
   const router = useRouter();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [type, setType] = useState<QuestionType>("behavioral");
   const [difficulty, setDifficulty] = useState<Difficulty>("medium");
+  const [timerSeconds, setTimerSeconds] = useState(0);
   const [jdUrl, setJdUrl] = useState("");
   const [jdText, setJdText] = useState("");
   const [fetchingJd, setFetchingJd] = useState(false);
@@ -18,7 +27,7 @@ export default function SetupPage() {
   const [generating, setGenerating] = useState(false);
 
   useEffect(() => {
-    setProfile(loadProfile());
+    setProfile(loadProfile() ?? DEFAULT_PROFILE);
   }, []);
 
   const handleProfileSave = (p: Profile) => {
@@ -63,7 +72,7 @@ export default function SetupPage() {
         id: `s_${Date.now()}`,
         createdAt: Date.now(),
         profile,
-        config: { type, difficulty, jdText: jdText || undefined },
+        config: { type, difficulty, jdText: jdText || undefined, timerSeconds: timerSeconds || undefined },
         questions: data.questions,
         currentIndex: 0,
         answers: {},
@@ -82,7 +91,7 @@ export default function SetupPage() {
       <div>
         <h1 className="text-3xl font-bold text-slate-900">Set up your session</h1>
         <p className="mt-2 text-slate-600">
-          Tell us about your background and what kind of practice you want. Your profile stays in your browser.
+          Your profile is pre-filled with your background. Adjust anything before starting.
         </p>
       </div>
 
@@ -121,21 +130,43 @@ export default function SetupPage() {
             </div>
           </div>
 
-          <div>
-            <label className="text-sm font-medium text-slate-700">Difficulty</label>
-            <div className="mt-2 inline-flex rounded-lg border border-slate-200 bg-slate-50 p-1 text-sm">
-              {(["easy", "medium", "hard"] as const).map((d) => (
-                <button
-                  key={d}
-                  type="button"
-                  onClick={() => setDifficulty(d)}
-                  className={`px-4 py-1.5 rounded-md font-medium capitalize transition ${
-                    difficulty === d ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
-                  }`}
-                >
-                  {d}
-                </button>
-              ))}
+          <div className="flex flex-wrap gap-8">
+            <div>
+              <label className="text-sm font-medium text-slate-700">Difficulty</label>
+              <div className="mt-2 inline-flex rounded-lg border border-slate-200 bg-slate-50 p-1 text-sm">
+                {(["easy", "medium", "hard"] as const).map((d) => (
+                  <button
+                    key={d}
+                    type="button"
+                    onClick={() => setDifficulty(d)}
+                    className={`px-4 py-1.5 rounded-md font-medium capitalize transition ${
+                      difficulty === d ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
+                    }`}
+                  >
+                    {d}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-slate-700">Time limit per question</label>
+              <div className="mt-2 inline-flex rounded-lg border border-slate-200 bg-slate-50 p-1 text-sm">
+                {TIMER_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setTimerSeconds(opt.value)}
+                    className={`px-4 py-1.5 rounded-md font-medium transition ${
+                      timerSeconds === opt.value
+                        ? "bg-white text-slate-900 shadow-sm"
+                        : "text-slate-500 hover:text-slate-700"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -168,7 +199,11 @@ export default function SetupPage() {
             />
           </div>
 
-          {error && <div className="rounded-lg bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 text-sm">{error}</div>}
+          {error && (
+            <div className="rounded-lg bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 text-sm">
+              {error}
+            </div>
+          )}
 
           <div className="flex justify-end">
             <button

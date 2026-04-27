@@ -10,16 +10,19 @@ export function Header() {
           </span>
           <span className="font-semibold text-slate-900">Interview Simulator</span>
         </Link>
-        <nav className="flex items-center gap-6 text-sm text-slate-600">
-          <Link href="/setup" className="hover:text-slate-900 transition">New session</Link>
-          <a
-            href="https://docs.anthropic.com"
-            target="_blank"
-            rel="noreferrer"
-            className="hover:text-slate-900 transition"
+        <nav className="flex items-center gap-2 text-sm">
+          <Link
+            href="/history"
+            className="rounded-lg px-3 py-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition"
           >
-            Docs
-          </a>
+            History
+          </Link>
+          <Link
+            href="/setup"
+            className="rounded-lg bg-brand-600 px-3 py-1.5 font-semibold text-white hover:bg-brand-700 transition"
+          >
+            New session
+          </Link>
         </nav>
       </div>
     </header>

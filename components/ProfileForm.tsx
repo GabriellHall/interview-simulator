@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Profile } from "@/lib/types";
 
 interface Props {
@@ -19,6 +19,10 @@ const empty: Profile = {
 
 export function ProfileForm({ initial, onSave }: Props) {
   const [p, setP] = useState<Profile>(initial ?? empty);
+
+  useEffect(() => {
+    if (initial) setP(initial);
+  }, [initial]);
 
   const field = (label: string, key: keyof Profile, placeholder: string, textarea = false) => (
     <label className="block">

@@ -29,7 +29,10 @@ export default function FeedbackPage() {
   if (!q || !feedback) {
     return (
       <div className="rounded-2xl bg-white shadow-soft border border-slate-100 p-8 text-slate-600">
-        No feedback yet. <Link href="/interview" className="text-brand-600 font-semibold">Go answer a question →</Link>
+        No feedback yet.{" "}
+        <Link href="/interview" className="text-brand-600 font-semibold">
+          Go answer a question →
+        </Link>
       </div>
     );
   }
@@ -40,6 +43,10 @@ export default function FeedbackPage() {
     const updated: InterviewSession = { ...session, currentIndex: session.currentIndex + 1 };
     saveSession(updated);
     router.push("/interview");
+  };
+
+  const handleFinish = () => {
+    router.push("/results");
   };
 
   const handleNewSession = () => {
@@ -81,10 +88,10 @@ export default function FeedbackPage() {
           </button>
         ) : (
           <button
-            onClick={handleNewSession}
+            onClick={handleFinish}
             className="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-soft hover:bg-brand-700 transition"
           >
-            Finish & start new
+            View session summary →
           </button>
         )}
       </div>

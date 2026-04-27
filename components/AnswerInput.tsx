@@ -1,20 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Question, AnswerMode } from "@/lib/types";
 
 interface Props {
   question: Question;
   onSubmit: (mode: AnswerMode, content: string) => void;
   submitting: boolean;
+  timeExpired?: boolean;
+  onAnswerChange?: (mode: AnswerMode, content: string) => void;
 }
 
-export function AnswerInput({ question, onSubmit, submitting }: Props) {
+export function AnswerInput({ question, onSubmit, submitting, timeExpired = false, onAnswerChange }: Props) {
   const [mode, setMode] = useState<AnswerMode>("free");
   const [text, setText] = useState("");
   const [choice, setChoice] = useState<string>("");
 
   const canSubmit = mode === "free" ? text.trim().length > 0 : choice.length > 0;
+
+  useEffect(() => {
+    if (!onAnswerChange) return;
+    if (mode === "free") {
+      onAnswerChange("free", text);
+    } else if (choice) {
+      const opt = question.multipleChoice.find((o) => o.label === choice);
+      onAnswerChange("mcq", opt ? `Option ${choice}: ${opt.text}` : "");
+    }
+  }, [mode, text, choice]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="space-y-5">
@@ -45,7 +57,8 @@ export function AnswerInput({ question, onSubmit, submitting }: Props) {
           placeholder="Walk through your answer. For behavioral questions, cover Situation, Task, Action, Result."
           value={text}
           onChange={(e) => setText(e.target.value)}
-          className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-100 focus:outline-none"
+          disabled={timeExpired}
+          className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm shadow-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-100 focus:outline-none disabled:opacity-60 disabled:bg-slate-50"
         />
       ) : (
         <div className="space-y-2">
@@ -56,11 +69,12 @@ export function AnswerInput({ question, onSubmit, submitting }: Props) {
                 type="button"
                 key={opt.label}
                 onClick={() => setChoice(opt.label)}
+                disabled={timeExpired}
                 className={`w-full text-left rounded-xl border px-4 py-3 transition ${
                   selected
                     ? "border-brand-500 bg-brand-50 ring-2 ring-brand-100"
                     : "border-slate-200 hover:border-slate-300 bg-white"
-                }`}
+                } disabled:opacity-60`}
               >
                 <div className="flex items-start gap-3">
                   <span
